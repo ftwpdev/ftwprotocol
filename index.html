@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FTWP Virtual Bridge Deployment Protocol</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdn.ethers.io/lib/ethers-5.4.umd.min.js" type="application/javascript"></script>
+    <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.min.js"></script>
+    <script src="https://unpkg.com/@project-serum/sol-wallet-adapter@latest/dist/index.iife.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
+        body {
+            font-family: 'VT323', monospace;
+            background-color: #000;
+            color: #00ff00;
+        }
+        .matrix-bg {
+            background-color: rgba(0, 15, 0, 0.95);
+            border: 1px solid #00ff00;
+            box-shadow: 0 0 10px #00ff00;
+        }
+        .matrix-input {
+            background-color: #000;
+            border: 1px solid #00ff00;
+            color: #00ff00;
+            font-family: 'VT323', monospace;
+        }
+        .matrix-input:focus {
+            outline: none;
+            box-shadow: 0 0 5px #00ff00;
+        }
+        .matrix-button {
+            background-color: #000;
+            border: 1px solid #00ff00;
+            color: #00ff00;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            transition: all 0.3s;
+        }
+        .matrix-button:hover {
+            background-color: #00ff00;
+            color: #000;
+            box-shadow: 0 0 15px #00ff00;
+        }
+        .terminal-text {
+            font-size: 1.2em;
+            letter-spacing: 1px;
+        }
+        .bridge-status {
+            border-left: 2px solid #00ff00;
+            padding-left: 1rem;
+        }
+        .matrix-divider {
+            border-color: #00ff00;
+            box-shadow: 0 0 5px #00ff00;
+        }
+        .wallet-section {
+            border-top: 1px solid #00ff00;
+            border-bottom: 1px solid #00ff00;
+            margin: 20px 0;
+            padding: 20px 0;
+        }
+        .connected {
+            text-shadow: 0 0 10px #00ff00;
+        }
+    </style>
+</head>
+<body class="min-h-screen p-4">
+    <div class="container mx-auto px-4 py-12">
+        <div class="max-w-2xl mx-auto matrix-bg p-8 rounded-lg">
+            <h1 class="text-4xl font-bold text-center mb-8 terminal-text">FTWP VIRTUAL BRIDGE DEPLOYMENT PROTOCOL</h1>
+            
+            <!-- Wallet Connection Section -->
+            <div class="wallet-section mb-8">
+                <h2 class="text-2xl terminal-text mb-4">> WALLET CONNECTION</h2>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <button onclick="connectEthereum()" class="w-full matrix-button py-3 px-6 rounded-lg terminal-text">
+                            > CONNECT ETH
+                        </button>
+                        <div id="ethStatus" class="mt-2 terminal-text text-sm"></div>
+                    </div>
+                    <div>
+                        <button onclick="connectSolana()" class="w-full matrix-button py-3 px-6 rounded-lg terminal-text">
+                            > CONNECT SOL
+                        </button>
+                        <div id="solStatus" class="mt-2 terminal-text text-sm"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="space-y-6">
+                <!-- Token Creation Section -->
+                <div class="mb-8">
+                    <h2 class="text-2xl terminal-text mb-4">> TOKEN INITIALIZATION</h2>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block terminal-text mb-2">TOKEN NAME</label>
+                            <input type="text" id="tokenName" class="w-full p-2 rounded matrix-input" placeholder="_">
+                        </div>
+                        
+                        <div>
+                            <label class="block terminal-text mb-2">TOKEN SYMBOL</label>
+                            <input type="text" id="tokenSymbol" class="w-full p-2 rounded matrix-input" placeholder="_">
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <label class="block terminal-text mb-2">INITIAL SUPPLY</label>
+                        <input type="number" id="initialSupply" class="w-full p-2 rounded matrix-input" placeholder="_">
+                    </div>
+                </div>
+
+                <!-- Bridge Configuration -->
+                <div class="mb-8">
+                    <h2 class="text-2xl terminal-text mb-4">> BRIDGE CONFIGURATION</h2>
+                    <div class="space-y-4">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block terminal-text mb-2">BRIDGE ADDRESS</label>
+                                <input type="text" id="bridgeAddress" class="w-full p-2 rounded matrix-input" value="0x0b3e328455c4059eeb9e3f84b5543f74e24e7e1b" readonly>
+                            </div>
+                            <div>
+                                <label class="block terminal-text mb-2">VIRTUALS TOKEN</label>
+                                <input type="text" id="virtualsToken" class="w-full p-2 rounded matrix-input" value="0x44ff8620b8ca30902395a7bd3f2407e1a091bf73" readonly>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block terminal-text mb-2">BRIDGE AMOUNT</label>
+                            <input type="number" id="bridgeAmount" class="w-full p-2 rounded matrix-input" placeholder="ENTER AMOUNT TO BRIDGE">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Twitter Integration -->
+                <div class="mb-8">
+                    <h2 class="text-2xl terminal-text mb-4">> TWITTER AI CONFIGURATION</h2>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block terminal-text mb-2">TWITTER HANDLE</label>
+                            <input type="text" id="twitterHandle" class="w-full p-2 rounded matrix-input" placeholder="@_">
+                        </div>
+                        
+                        <div>
+                            <label class="block terminal-text mb-2">TWITTER PASSWORD</label>
+                            <input type="password" id="twitterPassword" class="w-full p-2 rounded matrix-input" placeholder="********">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="space-y-4">
+                    <button onclick="createTokenAndAgent()" class="w-full matrix-button py-3 px-6 rounded-lg terminal-text">
+                        > INITIALIZE TOKEN
+                    </button>
+                    <button onclick="bridgeToBase()" class="w-full matrix-button py-3 px-6 rounded-lg terminal-text">
+                        > EXECUTE BRIDGE
+                    </button>
+                    <button onclick="linkVirtuals()" class="w-full matrix-button py-3 px-6 rounded-lg terminal-text">
+                        > LINK VIRTUALS
+                    </button>
+                </div>
+
+                <!-- Status Display -->
+                <div class="mt-8">
+                    <h2 class="text-2xl terminal-text mb-4">> SYSTEM STATUS</h2>
+                    <div id="status" class="mt-4 p-4 rounded hidden terminal-text"></div>
+                    <div id="bridgeStatus" class="mt-4 p-4 rounded hidden terminal-text bridge-status"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>
